@@ -38,6 +38,9 @@ class _Calculator extends State<Calculator> {
   String result = "0";
   String finalresult = "0";
 
+  String opr = "";
+  String preopr = "";
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -85,26 +88,26 @@ class _Calculator extends State<Calculator> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                buttonStyle("6", Color(0xff323232)),
-                buttonStyle("5", Color(0xff323232)),
                 buttonStyle("4", Color(0xff323232)),
+                buttonStyle("5", Color(0xff323232)),
+                buttonStyle("6", Color(0xff323232)),
                 buttonStyle("-", Color(0xffff9800)),
               ],
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                buttonStyle("3", Color(0xff323232)),
-                buttonStyle("2", Color(0xff323232)),
                 buttonStyle("1", Color(0xff323232)),
+                buttonStyle("2", Color(0xff323232)),
+                buttonStyle("3", Color(0xff323232)),
                 buttonStyle("+", Color(0xffff9800)),
               ],
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                buttonStyle("0", Color(0xffa5a5a5), 0),
-                buttonStyle(".", Color(0xffa5a5a5)),
+                buttonStyle("0", Color(0xff323232), 0),
+                buttonStyle(".", Color(0xff323232)),
                 buttonStyle("=", Color(0xffff9800)),
               ],
             ),
@@ -120,7 +123,9 @@ class _Calculator extends State<Calculator> {
       container = Container(
           padding: EdgeInsets.only(bottom: 10),
           child: RaisedButton(
-            onPressed: () {},
+            onPressed: () {
+              Calculate(btnText);
+            },
             child: Text(btnText, style: TextStyle(fontSize: 30)),
             color: color,
             padding: EdgeInsets.only(left: 81, top: 20, right: 81, bottom: 20),
@@ -130,7 +135,9 @@ class _Calculator extends State<Calculator> {
       container = Container(
           padding: EdgeInsets.only(bottom: 10),
           child: RaisedButton(
-            onPressed: () {},
+            onPressed: () {
+              Calculate(btnText);
+            },
             child: Text(
               btnText,
               style: TextStyle(fontSize: 30),
@@ -141,5 +148,119 @@ class _Calculator extends State<Calculator> {
           ));
     }
     return container;
+  }
+
+  void Calculate(String txtbtn) {
+    if (txtbtn == "C") {
+      text = "0";
+      numOne = 0;
+      numtwo = 0;
+      result = "";
+      finalresult = "0";
+      opr = "";
+      preopr = "";
+    } else if (opr == '=' && txtbtn == '=') {
+      switch (preopr) {
+        case "+":
+          finalresult = add();
+          break;
+        case "-":
+          finalresult = sub();
+          break;
+        case "X":
+          finalresult = mult();
+          break;
+        case "/":
+          finalresult = div();
+          break;
+      }
+    } else if (txtbtn == '+' ||
+        txtbtn == '-' ||
+        txtbtn == 'X' ||
+        txtbtn == '/' ||
+        txtbtn == '=') {
+      if (numOne == 0) {
+        numOne = double.parse(result);
+      } else {
+        numtwo = double.parse(result);
+      }
+
+      switch (opr) {
+        case "+":
+          finalresult = add();
+          break;
+        case "-":
+          finalresult = sub();
+          break;
+        case "X":
+          finalresult = mult();
+          break;
+        case "/":
+          finalresult = div();
+          break;
+      }
+
+      preopr = opr;
+      opr = txtbtn;
+      result = "";
+    } else if (txtbtn == "%") {
+      result = "${numOne / 100}";
+      finalresult = result;
+    } else if (txtbtn == '.') {
+      if (!result.contains(".")) {
+        result += '.';
+        finalresult = result;
+      }
+    } else if (txtbtn == '+/-') {
+      result.startsWith('-')
+          ? result = result.substring(1)
+          : result = '-' + result;
+      finalresult = result;
+    } else {
+      if (result == "0") {
+        result = txtbtn;
+      } else {
+        result = result + txtbtn;
+        finalresult = result;
+      }
+    }
+
+    setState(() {
+      text = finalresult;
+    });
+  }
+
+  String add() {
+    result = (numOne + numtwo).toString();
+    numOne = double.parse(result);
+    return decimalRemove(result);
+  }
+
+  String sub() {
+    result = (numOne - numtwo).toString();
+    numOne = double.parse(result);
+    return decimalRemove(result);
+  }
+
+  String mult() {
+    result = (numOne * numtwo).toString();
+    numOne = double.parse(result);
+    return decimalRemove(result);
+  }
+
+  String div() {
+    result = (numOne / numtwo).toString();
+    numOne = double.parse(result);
+    return decimalRemove(result);
+  }
+
+  String decimalRemove(String _result) {
+    if (_result.contains(".")) {
+      List<String> split = _result.split(".");
+      if (!(int.parse(split[1]) > 0)) {
+        return split[0];
+      }
+    }
+    return _result;
   }
 }
